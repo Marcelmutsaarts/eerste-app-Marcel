@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactieve HTML Leer App (React)</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            margin: 1rem;
+            gap: 1rem;
+        }
+
+        nav {
+            background-color: #ffffff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 200px; /* Vaste breedte voor navigatie */
+            align-self: flex-start; /* Voorkomt dat nav meerekt */
+        }
+
+        nav h3 {
+            margin-top: 0;
+            color: #4a90e2;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li button {
+            background: none;
+            border: none;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #333;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        nav li button:hover {
+            background-color: #e8f0fe;
+            color: #4a90e2;
+        }
+
+        nav li button.active {
+            background-color: #4a90e2;
+            color: white;
+            font-weight: bold;
+        }
+
+        main {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex: 1; /* Neemt resterende ruimte */
+        }
+
+        .lesson-content h2 {
+            color: #4a90e2;
+            margin-top: 0;
+        }
+
+        .lesson-content h3 {
+            color: #555;
+            margin-top: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.3rem;
+        }
+
+        .explanation {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        pre {
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto; /* Scroll horizontaal bij lange code */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+
+        code {
+           font-family: 'Courier New', Courier, monospace;
+        }
+
+        .rendered-example {
+            border: 1px dashed #ccc;
+            padding: 1rem;
+            margin-top: 1rem;
+            background-color: #fdfdfd;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        /* Responsive aanpassing */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            nav {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel"> // Belangrijk: type="text/babel" zodat Babel het kan compileren
+
+        const { useState } = React; // Haal useState hook op van React
+
+        // Definieer de lesstof als een array van objecten
+        const lessons = [
+            {
+                id: 1,
+                title: "Introductie tot HTML",
+                explanation: "HTML staat voor HyperText Markup Language. Het is de standaard opmaaktaal die wordt gebruikt om webpagina's te maken. HTML beschrijft de structuur van een webpagina met behulp van 'markup' of 'tags'.",
+                codeExample: `<!DOCTYPE html>
+<html>
+<head>
+  <title>Mijn Eerste Webpagina</title>
+</head>
+<body>
+  <h1>Welkom!</h1>
+  <p>Dit is een paragraaf tekst.</p>
+</body>
+</html>`,
+                renderedExample: `<h1>Welkom!</h1><p>Dit is een paragraaf tekst.</p>`
+            },
+            {
+                id: 2,
+                title: "Headings & Paragrafen",
+                explanation: "HTML gebruikt heading-tags (`<h1>` tot `<h6>`) om koppen van verschillende niveaus aan te geven. `<h1>` is de belangrijkste kop, `<h6>` de minst belangrijke. Paragrafen worden gedefinieerd met de `<p>` tag.",
+                codeExample: `<h1>Dit is Hoofdkop 1</h1>
+<h2>Dit is Subkop 2</h2>
+<h3>Dit is Subkop 3</h3>
+<p>Dit is een normale paragraaf tekst.</p>
+<p>Dit is nog een paragraaf.</p>`,
+                renderedExample: `<h1>Dit is Hoofdkop 1</h1><h2>Dit is Subkop 2</h2><h3>Dit is Subkop 3</h3><p>Dit is een normale paragraaf tekst.</p><p>Dit is nog een paragraaf.</p>`
+            },
+            {
+                id: 3,
+                title: "Lijsten (Ongeordend & Geordend)",
+                explanation: "HTML ondersteunt lijsten. Ongeordende lijsten (`<ul>`) gebruiken 'bullet points'. Geordende lijsten (`<ol>`) gebruiken nummers of letters. Elk item in een lijst wordt gedefinieerd met de `<li>` tag (list item).",
+                codeExample: `<h3>Fruit (Ongeordend)</h3>
+<ul>
+  <li>Appel</li>
+  <li>Banaan</li>
+  <li>Sinaasappel</li>
+</ul>
+
+<h3>Stappen (Geordend)</h3>
+<ol>
+  <li>Eerste stap</li>
+  <li>Tweede stap</li>
+  <li>Derde stap</li>
+</ol>`,
+                renderedExample: `<h3>Fruit (Ongeordend)</h3><ul><li>Appel</li><li>Banaan</li><li>Sinaasappel</li></ul><h3>Stappen (Geordend)</h3><ol><li>Eerste stap</li><li>Tweede stap</li><li>Derde stap</li></ol>`
+            },
+            {
+                id: 4,
+                title: "Links (Hyperlinks)",
+                explanation: "Links worden gemaakt met de `<a>` tag (anchor). Het `href` attribuut specificeert de URL waarnaar gelinkt wordt. De tekst tussen de `<a>` en `</a>` tags is de klikbare tekst.",
+                codeExample: `<p>Bezoek <a href="https://www.google.com" target="_blank">Google</a> voor meer informatie.</p>
+<p><a href="#top">Link naar bovenkant pagina (werkt niet in dit voorbeeld)</a></p>`,
+                // Let op: target="_blank" opent de link in een nieuw tabblad.
+                renderedExample: `<p>Bezoek <a href="https://www.google.com" target="_blank">Google</a> voor meer informatie.</p><p><a href="#top">Link naar bovenkant pagina (werkt niet in dit voorbeeld)</a></p>`
+            },
+             {
+                id: 5,
+                title: "Afbeeldingen",
+                explanation: "Afbeeldingen worden ingevoegd met de `<img>` tag. Deze tag is 'empty', wat betekent dat hij geen sluittag heeft. De `src` attribuut bevat het pad naar de afbeelding, en `alt` geeft alternatieve tekst (belangrijk voor toegankelijkheid en SEO). Je kunt ook `width` en `height` attributen toevoegen.",
+                codeExample: `<img
+  src="https://via.placeholder.com/150/4a90e2/ffffff?text=Voorbeeld"
+  alt="Voorbeeld Afbeelding"
+  width="150"
+  height="150">
+
+<p>Een kleine afbeelding hierboven.</p>`,
+                renderedExample: `<img src="https://via.placeholder.com/150/4a90e2/ffffff?text=Voorbeeld" alt="Voorbeeld Afbeelding" width="150" height="150"><p>Een kleine afbeelding hierboven.</p>`
+            },
+            {
+                id: 6,
+                title: "Basis Tekstopmaak",
+                explanation: "HTML biedt tags voor basis tekstopmaak. Gebruik `<strong>` voor belangrijke tekst (vaak vetgedrukt) en `<em>` (emphasis) voor benadrukte tekst (vaak cursief). Gebruik deze semantische tags in plaats van de oudere `<b>` en `<i>` tags.",
+                codeExample: `<p>Dit is normale tekst.</p>
+<p>Dit is <strong>belangrijke (vet)</strong> tekst.</p>
+<p>Dit is <em>benadrukte (cursief)</em> tekst.</p>
+<p>Je kunt ze ook <strong><em>combineren</em></strong>!</p>`,
+                renderedExample: `<p>Dit is normale tekst.</p><p>Dit is <strong>belangrijke (vet)</strong> tekst.</p><p>Dit is <em>benadrukte (cursief)</em> tekst.</p><p>Je kunt ze ook <strong><em>combineren</em></strong>!</p>`
+            },
+            // Voeg hier eventueel meer lessen toe...
+        ];
+
+        // Component voor het weergeven van een enkele les
+        function Lesson({ lesson }) {
+            if (!lesson) {
+                return <div className="lesson-content">Selecteer een les uit het menu.</div>;
+            }
+
+            // Gebruik dangerouslySetInnerHTML om de HTML-voorbeeldcode daadwerkelijk te renderen.
+            // Wees hier voorzichtig mee in echte applicaties vanwege XSS-risico's,
+            // maar voor dit gecontroleerde educatieve doel is het acceptabel.
+            const createMarkup = (htmlString) => {
+                return { __html: htmlString };
+            };
+
+            return (
+                <div className="lesson-content">
+                    <h2>{lesson.title}</h2>
+                    <h3>Uitleg</h3>
+                    <p className="explanation">{lesson.explanation}</p>
+
+                    <h3>Code Voorbeeld</h3>
+                    <pre><code>{lesson.codeExample}</code></pre>
+
+                    <h3>Resultaat (Hoe de browser het toont)</h3>
+                    <div
+                        className="rendered-example"
+                        dangerouslySetInnerHTML={createMarkup(lesson.renderedExample)}
+                    />
+                </div>
+            );
+        }
+
+        // Hoofd Applicatie Component
+        function App() {
+            // State om bij te houden welke les actief is
+            const [activeLessonId, setActiveLessonId] = useState(lessons[0].id);
+
+            // Zoek de data van de actieve les
+            const activeLesson = lessons.find(lesson => lesson.id === activeLessonId);
+
+            // Functie om de actieve les te veranderen
+            const handleLessonClick = (id) => {
+                setActiveLessonId(id);
+            };
+
+            return (
+                <>
+                    <header>
+                        <h1>Interactieve HTML Leer App</h1>
+                        <p>Gebouwd met React</p>
+                    </header>
+                    <div className="container">
+                        <nav>
+                            <h3>HTML Lessen</h3>
+                            <ul>
+                                {lessons.map(lesson => (
+                                    <li key={lesson.id}>
+                                        <button
+                                            onClick={() => handleLessonClick(lesson.id)}
+                                            className={lesson.id === activeLessonId ? 'active' : ''}
+                                        >
+                                            {lesson.title}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                        <main>
+                            <Lesson lesson={activeLesson} />
+                        </main>
+                    </div>
+                    <footer>
+                        Gemaakt als een enkel-bestand React voorbeeld - {new Date().getFullYear()}
+                    </footer>
+                </>
+            );
+        }
+
+        // Render de React App in de 'root' div
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+
+    </script>
+
+</body>
+</html>
